@@ -86,14 +86,27 @@ const App: React.FC = () => {
     const form = e.currentTarget;
     const formData = new FormData(form);
     const name = formData.get('name') as string | null;
-    const email = formData.get('email') as string | null;
+    const phone = formData.get('phone') as string | null;
     const service = formData.get('service') as string | null;
     const message = formData.get('message') as string | null;
 
     // For now just log — you can replace with fetch/Axios to send to a server
-    console.log({ name, email, service, message });
+    console.log({ name, phone, service, message });
     alert('Message sent (demo). Check console for data.');
     form.reset();
+  };
+
+  // Controlled contact form state for service & package
+  const [contactService, setContactService] = useState<string>('');
+  const [contactPackage, setContactPackage] = useState<string>('');
+
+  const choosePackage = (service: string, pack: string) => {
+    setContactService(service);
+    setContactPackage(pack);
+    // open contact form
+    setMobileMenuOpen(false);
+    const el = document.getElementById('contact');
+    el?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -103,13 +116,13 @@ const App: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
-              <a href="/"> <img src={logo} alt="logo" className="top-[-5px] relative w-24 h-24 " /></a>
+              <a href="/"> <img src={logo} alt="logo" loading="lazy" decoding="async" className="top-[-5px] relative w-24 h-24 " /></a>
               <a href="#"><span className={`text-4xl font-mina font-extrabold transition-colors relative top-2 ${isScrolled ? 'text-white' : 'text-white'}`}>চিত্রলেখা</span></a>
             </div>
 
             <div className="hidden md:flex space-x-8">
               <button onClick={() => scrollToSection('home')} className={`transition-colors ${isScrolled ? 'text-white hover:text-amber-600' : 'text-white hover:text-amber-400'}`}>Home</button>
-              <button onClick={() => scrollToSection('portfolio')} className={`transition-colors ${isScrolled ? 'text-white hover:text-amber-600' : 'text-white hover:text-amber-400'}`}>Portfolio</button>
+              <button onClick={() => scrollToSection('portfolio')} className={`transition-colors ${isScrolled ? 'text-white hover:text-amber-600' : 'text-white hover:text-amber-400'}`}>Gallery</button>
               <button onClick={() => scrollToSection('about')} className={`transition-colors ${isScrolled ? 'text-white hover:text-amber-600' : 'text-white hover:text-amber-400'}`}>About</button>
               <button onClick={() => scrollToSection('services')} className={`transition-colors ${isScrolled ? 'text-white hover:text-amber-600' : 'text-white hover:text-amber-400'}`}>Services</button>
               <button onClick={() => scrollToSection('contact')} className={`transition-colors ${isScrolled ? 'text-white hover:text-amber-600' : 'text-white hover:text-amber-400'}`}>Contact</button>
@@ -128,7 +141,7 @@ const App: React.FC = () => {
           <div className="md:hidden bg-white/95 backdrop-blur-sm border-t">
             <div className="px-4 py-3 space-y-3">
               <button onClick={() => scrollToSection('home')} className="block w-full text-left text-slate-600 hover:text-amber-600 py-2">Home</button>
-              <button onClick={() => scrollToSection('portfolio')} className="block w-full text-left text-slate-600 hover:text-amber-600 py-2">Portfolio</button>
+              <button onClick={() => scrollToSection('portfolio')} className="block w-full text-left text-slate-600 hover:text-amber-600 py-2">Gallery</button>
               <button onClick={() => scrollToSection('about')} className="block w-full text-left text-slate-600 hover:text-amber-600 py-2">About</button>
               <button onClick={() => scrollToSection('services')} className="block w-full text-left text-slate-600 hover:text-amber-600 py-2">Services</button>
               <button onClick={() => scrollToSection('contact')} className="block w-full text-left text-slate-600 hover:text-amber-600 py-2">Contact</button>
@@ -145,7 +158,7 @@ const App: React.FC = () => {
             <div
               key={index}
               className={`absolute inset-0 transition-all duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 scale-100' : 'opacity-0 scale-110'}`}>
-              <img src={image} alt={`Hero ${index + 1}`} className="w-full h-full object-cover" />
+              <img src={image} alt={`Hero ${index + 1}`} loading={index === currentSlide ? 'eager' : 'lazy'} decoding="async" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-slate-800/70 to-amber-900/80"></div>
             </div>
           ))}
@@ -161,7 +174,7 @@ const App: React.FC = () => {
             Professional wedding, indoor, and outdoor photography that tells your unique story
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button onClick={() => scrollToSection('portfolio')} className="px-8 py-4 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-semibold transition-all transform hover:scale-105 shadow-xl">View Portfolio</button>
+            <button onClick={() => scrollToSection('portfolio')} className="px-8 py-4 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-semibold transition-all transform hover:scale-105 shadow-xl">View Gallery</button>
             <button onClick={() => scrollToSection('contact')} className="px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white rounded-lg font-semibold transition-all border border-white/20">Book a Session</button>
           </div>
         </div>
@@ -178,7 +191,7 @@ const App: React.FC = () => {
       <section id="portfolio" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold text-slate-800 mb-4">Portfolio</h2>
+            <h2 className="text-4xl md:text-5xl font-bold text-slate-800 mb-4">Gallery</h2>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto">Explore my collection of wedding ceremonies, indoor shoots, and outdoor adventures</p>
           </div>
 
@@ -193,7 +206,7 @@ const App: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredImages.map(image => (
               <div key={image.id} className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 aspect-square">
-                <img src={image.url} alt={image.alt} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
+                  <img src={image.url} alt={image.alt} loading="lazy" decoding="async" className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
                   <p className="text-white text-lg font-semibold p-6 capitalize">{image.category}</p>
                 </div>
@@ -213,11 +226,11 @@ const App: React.FC = () => {
               <p className="text-lg text-slate-600 mb-6 leading-relaxed">My approach combines technical expertise with artistic vision, ensuring that each image reflects the genuine emotions and atmosphere of the moment. Whether it's your wedding day, a family portrait, or a creative photoshoot, I'm dedicated to delivering stunning results that you'll treasure forever.</p>
               <div className="flex items-center space-x-4">
                 <div className="w-16 h-1 bg-amber-600"></div>
-                <span className="text-slate-600 font-medium">Professional Photographer Since 2015</span>
+                <span className="text-slate-600 font-medium">Professional Photographer Since 2022</span>
               </div>
             </div>
             <div className="relative">
-              <img src={aboutPic} alt="Photographer at work" className="rounded-lg shadow-2xl" />
+              <img src={aboutPic} alt="Photographer at work" loading="lazy" decoding="async" className="rounded-lg shadow-2xl" />
             </div>
           </div>
         </div>
@@ -244,6 +257,30 @@ const App: React.FC = () => {
                 <li>• Custom albums</li>
                 <li>• High-resolution photos</li>
               </ul>
+              {/* Pricing packages */}
+              <div className="mt-6 border-t pt-6">
+                <h4 className="text-lg font-semibold text-slate-800 mb-3">Pricing & Packages</h4>
+                <div className="flex gap-3">
+                  <div className="flex-1 bg-white rounded-lg p-3 text-center border">
+                    <div className="font-bold">Basic</div>
+                    <div className="text-amber-600 font-extrabold text-xl">$400</div>
+                    <div className="text-sm text-slate-600">4 hours • 200 edited photos</div>
+                    <button onClick={() => choosePackage('wedding', 'Basic')} className="mt-3 w-full text-sm bg-amber-600 text-white rounded-md px-2 py-1">Choose</button>
+                  </div>
+                  <div className="flex-1 bg-white rounded-lg p-3 text-center border">
+                    <div className="font-bold">Standard</div>
+                    <div className="text-amber-600 font-extrabold text-xl">$800</div>
+                    <div className="text-sm text-slate-600">8 hours • 500 edited photos</div>
+                    <button onClick={() => choosePackage('wedding', 'Standard')} className="mt-3 w-full text-sm bg-amber-600 text-white rounded-md px-2 py-1">Choose</button>
+                  </div>
+                  <div className="flex-1 bg-white rounded-lg p-3 text-center border">
+                    <div className="font-bold">Premium</div>
+                    <div className="text-amber-600 font-extrabold text-xl">$1400</div>
+                    <div className="text-sm text-slate-600">Full day • Album & prints</div>
+                    <button onClick={() => choosePackage('wedding', 'Premium')} className="mt-3 w-full text-sm bg-amber-600 text-white rounded-md px-2 py-1">Choose</button>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="bg-slate-50 p-8 rounded-lg hover:shadow-xl transition-shadow">
@@ -258,6 +295,30 @@ const App: React.FC = () => {
                 <li>• Product shoots</li>
                 <li>• Professional lighting</li>
               </ul>
+              {/* Pricing packages */}
+              <div className="mt-6 border-t pt-6">
+                <h4 className="text-lg font-semibold text-slate-800 mb-3">Pricing & Packages</h4>
+                <div className="flex gap-3">
+                  <div className="flex-1 bg-white rounded-lg p-3 text-center border">
+                    <div className="font-bold">Basic</div>
+                    <div className="text-amber-600 font-extrabold text-xl">$80</div>
+                    <div className="text-sm text-slate-600">1 hour • 20 edited photos</div>
+                    <button onClick={() => choosePackage('indoor', 'Basic')} className="mt-3 w-full text-sm bg-amber-600 text-white rounded-md px-2 py-1">Choose</button>
+                  </div>
+                  <div className="flex-1 bg-white rounded-lg p-3 text-center border">
+                    <div className="font-bold">Standard</div>
+                    <div className="text-amber-600 font-extrabold text-xl">$180</div>
+                    <div className="text-sm text-slate-600">2 hours • 60 edited photos</div>
+                    <button onClick={() => choosePackage('indoor', 'Standard')} className="mt-3 w-full text-sm bg-amber-600 text-white rounded-md px-2 py-1">Choose</button>
+                  </div>
+                  <div className="flex-1 bg-white rounded-lg p-3 text-center border">
+                    <div className="font-bold">Premium</div>
+                    <div className="text-amber-600 font-extrabold text-xl">$320</div>
+                    <div className="text-sm text-slate-600">4 hours • Studio prints</div>
+                    <button onClick={() => choosePackage('indoor', 'Premium')} className="mt-3 w-full text-sm bg-amber-600 text-white rounded-md px-2 py-1">Choose</button>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="bg-slate-50 p-8 rounded-lg hover:shadow-xl transition-shadow">
@@ -272,6 +333,30 @@ const App: React.FC = () => {
                 <li>• Lifestyle photography</li>
                 <li>• Family portraits</li>
               </ul>
+              {/* Pricing packages */}
+              <div className="mt-6 border-t pt-6">
+                <h4 className="text-lg font-semibold text-slate-800 mb-3">Pricing & Packages</h4>
+                <div className="flex gap-3">
+                  <div className="flex-1 bg-white rounded-lg p-3 text-center border">
+                    <div className="font-bold">Basic</div>
+                    <div className="text-amber-600 font-extrabold text-xl">$120</div>
+                    <div className="text-sm text-slate-600">1.5 hours • 40 edited photos</div>
+                    <button onClick={() => choosePackage('outdoor', 'Basic')} className="mt-3 w-full text-sm bg-amber-600 text-white rounded-md px-2 py-1">Choose</button>
+                  </div>
+                  <div className="flex-1 bg-white rounded-lg p-3 text-center border">
+                    <div className="font-bold">Standard</div>
+                    <div className="text-amber-600 font-extrabold text-xl">$260</div>
+                    <div className="text-sm text-slate-600">3 hours • 100 edited photos</div>
+                    <button onClick={() => choosePackage('outdoor', 'Standard')} className="mt-3 w-full text-sm bg-amber-600 text-white rounded-md px-2 py-1">Choose</button>
+                  </div>
+                  <div className="flex-1 bg-white rounded-lg p-3 text-center border">
+                    <div className="font-bold">Premium</div>
+                    <div className="text-amber-600 font-extrabold text-xl">$420</div>
+                    <div className="text-sm text-slate-600">Half day • Prints & edits</div>
+                    <button onClick={() => choosePackage('outdoor', 'Premium')} className="mt-3 w-full text-sm bg-amber-600 text-white rounded-md px-2 py-1">Choose</button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -312,11 +397,11 @@ const App: React.FC = () => {
               </div>
 
               <div className="flex space-x-4 mt-8">
-                <a href="#" className="w-12 h-12 bg-white/10 hover:bg-amber-600 rounded-full flex items-center justify-center transition-colors">
+                <a href="https://wa.me/8801646402352?text=Hi%20I%20am%20interested%20in%20your%20photography%20services" target="_blank" rel="noopener noreferrer" aria-label="Message on WhatsApp" className="w-12 h-12 bg-white/10 hover:bg-amber-600 rounded-full flex items-center justify-center transition-colors">
                   <MessageSquareText className="w-5 h-5" />
                 </a>
 
-                <a href="#" className="w-12 h-12 bg-white/10 hover:bg-amber-600 rounded-full flex items-center justify-center transition-colors">
+                <a href="https://www.facebook.com/profile.php?id=61556441260355" target="_blank"className="w-12 h-12 bg-white/10 hover:bg-amber-600 rounded-full flex items-center justify-center transition-colors">
                   <Facebook className="w-5 h-5" />
                 </a>
               </div>
@@ -331,17 +416,27 @@ const App: React.FC = () => {
                 </div>
 
                 <div className="transform transition-all duration-300 hover:translate-z-4 hover:shadow-2xl">
-                  <label htmlFor="email" className="block text-sm font-medium mb-2">Email</label>
-                  <input type="email" name="email" id="email" className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-amber-400 focus:shadow-lg focus:shadow-amber-400/20 transition-all text-white placeholder-slate-400 transform focus:scale-[1.02]" placeholder="your@email.com" />
+                  <label htmlFor="phone" className="block text-sm font-medium mb-2">Mobile Number</label>
+                  <input type="tel" name="phone" id="phone" className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-amber-400 focus:shadow-lg focus:shadow-amber-400/20 transition-all text-white placeholder-slate-400 transform focus:scale-[1.02]" placeholder="e.g. +8801XXXXXXXXX" />
                 </div>
 
                 <div className="transform transition-all duration-300 hover:translate-z-4 hover:shadow-2xl">
                   <label htmlFor="service" className="block text-sm font-medium mb-2">Service Interested In</label>
-                  <select id="service" name="service" className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-amber-400 focus:shadow-lg focus:shadow-amber-400/20 transition-all text-white transform focus:scale-[1.02]">
+                  <select id="service" name="service" value={contactService} onChange={(e) => setContactService(e.target.value)} className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-amber-400 focus:shadow-lg focus:shadow-amber-400/20 transition-all text-white transform focus:scale-[1.02]">
                     <option value="" className="bg-slate-800">Select a service</option>
                     <option value="wedding" className="bg-slate-800">Wedding Photography</option>
                     <option value="indoor" className="bg-slate-800">Indoor Photography</option>
                     <option value="outdoor" className="bg-slate-800">Outdoor Photography</option>
+                  </select>
+                </div>
+
+                <div className="transform transition-all duration-300 hover:translate-z-4 hover:shadow-2xl">
+                  <label htmlFor="package" className="block text-sm font-medium mb-2">Selected Package</label>
+                  <select id="package" name="package" value={contactPackage} onChange={(e) => setContactPackage(e.target.value)} className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-amber-400 focus:shadow-lg focus:shadow-amber-400/20 transition-all text-white transform focus:scale-[1.02]">
+                    <option value="" className="bg-slate-800">Select a package</option>
+                    <option value="Basic" className="bg-slate-800">Basic</option>
+                    <option value="Standard" className="bg-slate-800">Standard</option>
+                    <option value="Premium" className="bg-slate-800">Premium</option>
                   </select>
                 </div>
 
@@ -361,19 +456,19 @@ const App: React.FC = () => {
       <footer className="bg-slate-950 text-slate-400 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
-            <p className='font-mina'>&copy; 2024 চিত্রলেখা. All rights reserved.</p>
+            <p className='font-mina'>&copy; 2025 চিত্রলেখা. All rights reserved.</p>
 
             <div className="flex items-center space-x-4">
               <div className="text-sm">
                 <div className="text-slate-300">Developed by</div>
-                <div className="font-medium">Your Name</div>
+                <div className="font-extrabold text-base">Arnob Sarker</div>
               </div>
 
               <div className="flex items-center space-x-3">
-                <a href="https://github.com/your-username" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-white">
+                <a href="https://facebook.com/arnobs21" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-white">
                   <Facebook className="w-5 h-5" />
                 </a>
-                <a href="#" className="w-12 h-12 bg-white/10 hover:bg-amber-600 rounded-full flex items-center justify-center transition-colors">
+                <a href="https://wa.me/01868668422?text=Hi%20I%20am%20interested%20in%20developing%20website%20by%20you" target="_blank" rel="noopener noreferrer" aria-label="Message on WhatsApp" className="w-12 h-12 bg-white/10 hover:bg-amber-600 rounded-full flex items-center justify-center transition-colors">
                   <MessageSquareText className="w-5 h-5" />
                 </a>
 
