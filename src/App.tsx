@@ -31,6 +31,11 @@ const App: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
   const [currentSlide, setCurrentSlide] = useState<number>(0);
+  // Coupon dialog state
+  const [showCouponDialog, setShowCouponDialog] = useState<boolean>(false);
+  const [couponCode, setCouponCode] = useState<string>('');
+  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+  const [applyTarget, setApplyTarget] = useState<'selected' | 'all'>('selected');
 
   const heroImages: string[] = [hero1, hero2, hero3, hero4];
 
@@ -107,6 +112,32 @@ const App: React.FC = () => {
     setMobileMenuOpen(false);
     const el = document.getElementById('contact');
     el?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Pricing map (base prices)
+  const PRICES: Record<string, Record<string, number>> = {
+    wedding: { Basic: 400, Standard: 800, Premium: 1400 },
+    indoor: { Basic: 80, Standard: 180, Premium: 320 },
+    outdoor: { Basic: 120, Standard: 260, Premium: 420 }
+  };
+
+  const DISCOUNT_AMOUNT = 500; // 500 tk discount when coupon applied
+
+  const renderPrice = (service: string, tier: 'Basic' | 'Standard' | 'Premium') => {
+    const original = PRICES[service]?.[tier] ?? 0;
+    const isApplied = appliedCoupon?.toLowerCase() === 'arnob500' && (applyTarget === 'all' || (applyTarget === 'selected' && contactPackage === tier));
+    const discounted = isApplied ? Math.max(0, original - DISCOUNT_AMOUNT) : original;
+
+    if (isApplied) {
+      return (
+        <>
+          <div className="line-through text-sm text-slate-500">৳{original}</div>
+          <div className="text-amber-600 font-extrabold text-xl">৳{discounted}</div>
+        </>
+      );
+    }
+
+    return <div className="text-amber-600 font-extrabold text-xl">৳{original}</div>;
   };
 
   return (
@@ -226,7 +257,26 @@ const App: React.FC = () => {
               <p className="text-lg text-slate-600 mb-6 leading-relaxed">My approach combines technical expertise with artistic vision, ensuring that each image reflects the genuine emotions and atmosphere of the moment. Whether it's your wedding day, a family portrait, or a creative photoshoot, I'm dedicated to delivering stunning results that you'll treasure forever.</p>
               <div className="flex items-center space-x-4">
                 <div className="w-16 h-1 bg-amber-600"></div>
+                
                 <span className="text-slate-600 font-medium">Professional Photographer Since 2022</span>
+              </div>
+              <div className="mt-8 bg-white p-4 rounded-lg shadow-md inline-block">
+                <div className="flex items-center space-x-4">
+                  <img src={logo} alt="owner" className="w-16 h-16 rounded-full object-cover" />
+                  <div>
+                    <div className="font-bold text-slate-800">Showrov Sarkar</div>
+                    <div className="text-sm text-slate-600">Lead Photographer & Founder</div>
+                    <div className="text-sm text-slate-600 mt-2">showrovsarkar64@gmail.com</div>
+                    <div className="text-sm text-slate-600">+8801646-402352</div>
+                    <div className="flex items-center space-x-2 mt-2">
+                    
+                      
+                      <a href="https://www.facebook.com/showrovesarker01646402352" className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center hover:bg-amber-600 transition-colors">
+                        <Facebook className="w-4 h-4" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             <div className="relative">
@@ -263,20 +313,20 @@ const App: React.FC = () => {
                 <div className="flex gap-3">
                   <div className="flex-1 bg-white rounded-lg p-3 text-center border">
                     <div className="font-bold">Basic</div>
-                    <div className="text-amber-600 font-extrabold text-xl">$400</div>
                     <div className="text-sm text-slate-600">4 hours • 200 edited photos</div>
+                    <div>{renderPrice('wedding', 'Basic')}</div>
                     <button onClick={() => choosePackage('wedding', 'Basic')} className="mt-3 w-full text-sm bg-amber-600 text-white rounded-md px-2 py-1">Choose</button>
                   </div>
                   <div className="flex-1 bg-white rounded-lg p-3 text-center border">
                     <div className="font-bold">Standard</div>
-                    <div className="text-amber-600 font-extrabold text-xl">$800</div>
                     <div className="text-sm text-slate-600">8 hours • 500 edited photos</div>
+                    <div>{renderPrice('wedding', 'Standard')}</div>
                     <button onClick={() => choosePackage('wedding', 'Standard')} className="mt-3 w-full text-sm bg-amber-600 text-white rounded-md px-2 py-1">Choose</button>
                   </div>
                   <div className="flex-1 bg-white rounded-lg p-3 text-center border">
                     <div className="font-bold">Premium</div>
-                    <div className="text-amber-600 font-extrabold text-xl">$1400</div>
                     <div className="text-sm text-slate-600">Full day • Album & prints</div>
+                    <div>{renderPrice('wedding', 'Premium')}</div>
                     <button onClick={() => choosePackage('wedding', 'Premium')} className="mt-3 w-full text-sm bg-amber-600 text-white rounded-md px-2 py-1">Choose</button>
                   </div>
                 </div>
@@ -301,20 +351,20 @@ const App: React.FC = () => {
                 <div className="flex gap-3">
                   <div className="flex-1 bg-white rounded-lg p-3 text-center border">
                     <div className="font-bold">Basic</div>
-                    <div className="text-amber-600 font-extrabold text-xl">$80</div>
                     <div className="text-sm text-slate-600">1 hour • 20 edited photos</div>
+                    <div>{renderPrice('indoor', 'Basic')}</div>
                     <button onClick={() => choosePackage('indoor', 'Basic')} className="mt-3 w-full text-sm bg-amber-600 text-white rounded-md px-2 py-1">Choose</button>
                   </div>
                   <div className="flex-1 bg-white rounded-lg p-3 text-center border">
                     <div className="font-bold">Standard</div>
-                    <div className="text-amber-600 font-extrabold text-xl">$180</div>
                     <div className="text-sm text-slate-600">2 hours • 60 edited photos</div>
+                    <div>{renderPrice('indoor', 'Standard')}</div>
                     <button onClick={() => choosePackage('indoor', 'Standard')} className="mt-3 w-full text-sm bg-amber-600 text-white rounded-md px-2 py-1">Choose</button>
                   </div>
                   <div className="flex-1 bg-white rounded-lg p-3 text-center border">
                     <div className="font-bold">Premium</div>
-                    <div className="text-amber-600 font-extrabold text-xl">$320</div>
                     <div className="text-sm text-slate-600">4 hours • Studio prints</div>
+                    <div>{renderPrice('indoor', 'Premium')}</div>
                     <button onClick={() => choosePackage('indoor', 'Premium')} className="mt-3 w-full text-sm bg-amber-600 text-white rounded-md px-2 py-1">Choose</button>
                   </div>
                 </div>
@@ -339,20 +389,20 @@ const App: React.FC = () => {
                 <div className="flex gap-3">
                   <div className="flex-1 bg-white rounded-lg p-3 text-center border">
                     <div className="font-bold">Basic</div>
-                    <div className="text-amber-600 font-extrabold text-xl">$120</div>
                     <div className="text-sm text-slate-600">1.5 hours • 40 edited photos</div>
+                    <div>{renderPrice('outdoor', 'Basic')}</div>
                     <button onClick={() => choosePackage('outdoor', 'Basic')} className="mt-3 w-full text-sm bg-amber-600 text-white rounded-md px-2 py-1">Choose</button>
                   </div>
                   <div className="flex-1 bg-white rounded-lg p-3 text-center border">
                     <div className="font-bold">Standard</div>
-                    <div className="text-amber-600 font-extrabold text-xl">$260</div>
                     <div className="text-sm text-slate-600">3 hours • 100 edited photos</div>
+                    <div>{renderPrice('outdoor', 'Standard')}</div>
                     <button onClick={() => choosePackage('outdoor', 'Standard')} className="mt-3 w-full text-sm bg-amber-600 text-white rounded-md px-2 py-1">Choose</button>
                   </div>
                   <div className="flex-1 bg-white rounded-lg p-3 text-center border">
                     <div className="font-bold">Premium</div>
-                    <div className="text-amber-600 font-extrabold text-xl">$420</div>
                     <div className="text-sm text-slate-600">Half day • Prints & edits</div>
+                    <div>{renderPrice('outdoor', 'Premium')}</div>
                     <button onClick={() => choosePackage('outdoor', 'Premium')} className="mt-3 w-full text-sm bg-amber-600 text-white rounded-md px-2 py-1">Choose</button>
                   </div>
                 </div>
@@ -446,6 +496,50 @@ const App: React.FC = () => {
                 </div>
 
                 <button type="submit" className="w-full px-6 py-4 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-semibold transition-all transform hover:scale-105 hover:shadow-2xl hover:shadow-amber-600/50 active:scale-95">Send Message</button>
+
+                {/* Apply Coupon Code */}
+                <div className="mt-4 text-center">
+                  <span className="text-slate-300">Have a coupon or referral code?</span>
+                  <button type="button" onClick={() => setShowCouponDialog(true)} className="ml-2 text-amber-400 underline hover:text-amber-500">Apply Coupon Code</button>
+                </div>
+
+                {/* Coupon Dialog */}
+                {showCouponDialog && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                    <div className="bg-white rounded-lg shadow-lg p-6 w-80 max-w-full">
+                      <h4 className="text-lg font-bold mb-4 text-slate-600">Enter Coupon or Referral Code</h4>
+                      <input
+                        type="text"
+                        value={couponCode}
+                        onChange={e => setCouponCode(e.target.value)}
+                        className="w-full px-3 py-2 border border-slate-600 rounded mb-2 focus:outline-none text-black  focus:border-amber-400"
+                        placeholder="Type your code here"
+                        autoFocus
+                      />
+                      <div className="text-sm text-slate-600 mb-3">Apply to:</div>
+                      <div className="flex items-center gap-3 mb-4">
+                        <label className="inline-flex text-black items-center">
+                          <input type="radio" name="applyTarget" checked={applyTarget === 'selected'} onChange={() => setApplyTarget('selected')} className="mr-2 " />
+                          Selected package only
+                        </label>
+                        
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <button type="button" onClick={() => setShowCouponDialog(false)} className="px-4 py-2 rounded bg-slate-200 text-slate-700 hover:bg-slate-300">Cancel</button>
+                        <button type="button" onClick={() => {
+                          const code = couponCode.trim().toLowerCase();
+                          if (code === 'arnob500') {
+                            setAppliedCoupon('arnob500');
+                            setShowCouponDialog(false);
+                            alert('Coupon arnob500 applied — ৳' + DISCOUNT_AMOUNT + ' off');
+                          } else {
+                            alert('Invalid coupon code');
+                          }
+                        }} className="px-4 py-2 rounded bg-amber-600 text-white hover:bg-amber-700">Apply</button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </form>
             </div>
           </div>
@@ -468,6 +562,8 @@ const App: React.FC = () => {
                 <a href="https://facebook.com/arnobs21" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-white">
                   <Facebook className="w-5 h-5" />
                 </a>
+              {/* Owner info card */}
+            
                 <a href="https://wa.me/01868668422?text=Hi%20I%20am%20interested%20in%20developing%20website%20by%20you" target="_blank" rel="noopener noreferrer" aria-label="Message on WhatsApp" className="w-12 h-12 bg-white/10 hover:bg-amber-600 rounded-full flex items-center justify-center transition-colors">
                   <MessageSquareText className="w-5 h-5" />
                 </a>
