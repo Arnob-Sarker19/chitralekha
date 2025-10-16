@@ -26,6 +26,8 @@ type ImageItem = {
   alt: string;
 };
 
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xpwyknpb';
+
 const App: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -36,6 +38,10 @@ const App: React.FC = () => {
   const [couponCode, setCouponCode] = useState<string>('');
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [applyTarget, setApplyTarget] = useState<'selected' | 'all'>('selected');
+
+  // Controlled contact form state for service & package
+  const [contactService, setContactService] = useState<string>('');
+  const [contactPackage, setContactPackage] = useState<string>('');
 
   const heroImages: string[] = [hero1, hero2, hero3, hero4];
 
@@ -85,35 +91,6 @@ const App: React.FC = () => {
     setMobileMenuOpen(false);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // Basic local handling — replace with API/Firebase code as needed
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-    const name = formData.get('name') as string | null;
-    const phone = formData.get('phone') as string | null;
-    const service = formData.get('service') as string | null;
-    const message = formData.get('message') as string | null;
-
-    // For now just log — you can replace with fetch/Axios to send to a server
-    console.log({ name, phone, service, message });
-    alert('Message sent (demo). Check console for data.');
-    form.reset();
-  };
-
-  // Controlled contact form state for service & package
-  const [contactService, setContactService] = useState<string>('');
-  const [contactPackage, setContactPackage] = useState<string>('');
-
-  const choosePackage = (service: string, pack: string) => {
-    setContactService(service);
-    setContactPackage(pack);
-    // open contact form
-    setMobileMenuOpen(false);
-    const el = document.getElementById('contact');
-    el?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   // Pricing map (base prices)
   const PRICES: Record<string, Record<string, number>> = {
     wedding: { Basic: 400, Standard: 800, Premium: 1400 },
@@ -138,6 +115,73 @@ const App: React.FC = () => {
     }
 
     return <div className="text-amber-600 font-extrabold text-xl">৳{original}</div>;
+  };
+
+  // Submit handler now sends form data to Formspree (and logs locally)
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const name = (formData.get('name') as string) || '';
+    const phone = (formData.get('phone') as string) || '';
+    const service = (formData.get('service') as string) || contactService || '';
+    const packageName = (formData.get('package') as string) || contactPackage || '';
+    const message = (formData.get('message') as string) || '';
+
+    // Prepare payload for Formspree
+    const payload = {
+      name,
+      phone,
+      service,
+      package: packageName,
+      message,
+      couponCode: appliedCoupon ?? couponCode ?? null,
+      couponApplied: appliedCoupon ? true : false,
+      applyTarget,
+      submittedAt: new Date().toISOString()
+    };
+
+    try {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        // success
+        alert('Message sent! We will contact you soon.');
+        // reset form fields and local state
+        form.reset();
+        setContactService('');
+        setContactPackage('');
+        setAppliedCoupon(null);
+        setCouponCode('');
+        setShowCouponDialog(false);
+      } else {
+        const data = await res.json().catch(() => null);
+        console.error('Formspree error response:', data);
+        alert('Failed to send message. Please try again or contact via phone/WhatsApp.');
+      }
+
+      // also log locally for debug
+      console.log('Form submission payload:', payload);
+    } catch (err) {
+      console.error('Form submission error:', err);
+      alert('Error sending message. Please check your connection and try again.');
+    }
+  };
+
+  const choosePackage = (service: string, pack: string) => {
+    setContactService(service);
+    setContactPackage(pack);
+    // open contact form
+    setMobileMenuOpen(false);
+    const el = document.getElementById('contact');
+    el?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -269,8 +313,6 @@ const App: React.FC = () => {
                     <div className="text-sm text-slate-600 mt-2">showrovsarkar64@gmail.com</div>
                     <div className="text-sm text-slate-600">+8801646-402352</div>
                     <div className="flex items-center space-x-2 mt-2">
-                    
-                      
                       <a href="https://www.facebook.com/showrovesarker01646402352" className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center hover:bg-amber-600 transition-colors">
                         <Facebook className="w-4 h-4" />
                       </a>
@@ -522,7 +564,6 @@ const App: React.FC = () => {
                           <input type="radio" name="applyTarget" checked={applyTarget === 'selected'} onChange={() => setApplyTarget('selected')} className="mr-2 " />
                           Selected package only
                         </label>
-                        
                       </div>
                       <div className="flex justify-end gap-2">
                         <button type="button" onClick={() => setShowCouponDialog(false)} className="px-4 py-2 rounded bg-slate-200 text-slate-700 hover:bg-slate-300">Cancel</button>
@@ -530,6 +571,7 @@ const App: React.FC = () => {
                           const code = couponCode.trim().toLowerCase();
                           if (code === 'arnob500') {
                             setAppliedCoupon('arnob500');
+                            setCouponCode('arnob500');
                             setShowCouponDialog(false);
                             alert('Coupon arnob500 applied — ৳' + DISCOUNT_AMOUNT + ' off');
                           } else {
@@ -563,7 +605,7 @@ const App: React.FC = () => {
                   <Facebook className="w-5 h-5" />
                 </a>
               {/* Owner info card */}
-            
+              
                 <a href="https://wa.me/01868668422?text=Hi%20I%20am%20interested%20in%20developing%20website%20by%20you" target="_blank" rel="noopener noreferrer" aria-label="Message on WhatsApp" className="w-12 h-12 bg-white/10 hover:bg-amber-600 rounded-full flex items-center justify-center transition-colors">
                   <MessageSquareText className="w-5 h-5" />
                 </a>
